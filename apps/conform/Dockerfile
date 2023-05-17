@@ -16,6 +16,8 @@ RUN CGO_ENABLED=0 go build -ldflags "-extldflags=-static -s -w -X ${VERSION_PKG}
 
 FROM scratch
 
+LABEL org.opencontainers.image.source=https://github.com/OGKevin/containers
+
 COPY --from=builder /conform /conform
 
 ENTRYPOINT ["/conform"]

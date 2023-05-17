@@ -16,4 +16,7 @@ RUN go mod vendor && go mod verify
 RUN make RELEASE_VERSION=${VERSION} bin/tkn
 
 FROM debian:${DEBIAN_VERSION} as tkn
+
+LABEL org.opencontainers.image.source=https://github.com/OGKevin/containers
+
 COPY --from=builder /app/cli/bin/tkn /usr/bin
