@@ -1,0 +1,3 @@
+[submodule "apps/tailscale-git-ops"]
+	path = apps/tailscale-git-ops
+	url = git@github.com:tailscale/gitops-acl-action.git
