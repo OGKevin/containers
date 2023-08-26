@@ -1,3 +1,6 @@
 [submodule "apps/tailscale-git-ops"]
 	path = apps/tailscale-git-ops
 	url = git@github.com:tailscale/gitops-acl-action.git
+[submodule "apps/release-please/repo"]
+	path = apps/release-please/repo
+	url = git@github.com:googleapis/release-please.git
