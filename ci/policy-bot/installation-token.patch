@@ -1,0 +1,44 @@
+diff --git a/vendor/github.com/palantir/go-githubapp/githubapp/installations.go b/vendor/github.com/palantir/go-githubapp/githubapp/installations.go
+index c687043..2ebf843 100644
+--- a/vendor/github.com/palantir/go-githubapp/githubapp/installations.go
++++ b/vendor/github.com/palantir/go-githubapp/githubapp/installations.go
+@@ -18,9 +18,12 @@ import (
+ 	"context"
+ 	"fmt"
+ 	"net/http"
++	"os"
++	"strconv"
+
+ 	"github.com/google/go-github/v53/github"
+ 	"github.com/pkg/errors"
++	"log/slog"
+ )
+
+ // Installation is a minimal representation of a GitHub app installation.
+@@ -38,7 +41,25 @@ type InstallationSource interface {
+ // GetInstallationIDFromEvent returns the installation ID from a GitHub webhook
+ // event payload.
+ func GetInstallationIDFromEvent(event InstallationSource) int64 {
+-	return event.GetInstallation().GetID()
++	idFromEvent := event.GetInstallation().GetID()
++
++	if idFromEvent != 0 {
++		return idFromEvent
++	}
++
++	idFromEnvironment := os.Getenv("GITHUB_APP_INSTALLATION_ID")
++	if idFromEnvironment != "" {
++		id, err := strconv.Atoi(idFromEnvironment)
++		if err != nil {
++			slog.Error("failed to parse GITHUB_APP_INSTALLATION_ID", slog.Any("err", err))
++
++			return 0
++		}
++
++		return int64(id)
++	}
++
++	return 0
+ }
+
+ // InstallationsService retrieves installation information for a given app.
