@@ -1,4 +1,4 @@
-ARG GOLANG_VERSION=1.21
+ARG GOLANG_VERSION=1.21@sha256:24a09375a6216764a3eda6a25490a88ac178b5fcb9511d59d0da5ebf9e496474
 FROM golang:${GOLANG_VERSION} as builder
 
 ARG VERSION=v1.31.0
@@ -14,7 +14,7 @@ RUN git apply installation-token.patch
 
 RUN CGO_ENABLED=0 go build -o /policy-bot .
 
-FROM alpine as certs
+FROM alpine@sha256:eece025e432126ce23f223450a0326fbebde39cdf496a85d8c016293fc851978 as certs
 
 FROM scratch
 
