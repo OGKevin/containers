@@ -1,0 +1,15 @@
+policy:
+  approval:
+    - or:
+      - Kevin made a change
+
+approval_rules:
+  - name: Kevin made a change
+    if:
+      has_author_in:
+        users: [ "OGKevin"]
+      has_contributor_in:
+        users: [ "OGKevin"]
+    options:
+      allow_author: true
+      allow_contributor: true
