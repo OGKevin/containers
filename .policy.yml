@@ -2,6 +2,7 @@ policy:
   approval:
     - or:
       - Kevin made a change
+      - Kevin approves
 
 approval_rules:
   - name: Kevin made a change
@@ -13,3 +14,11 @@ approval_rules:
     options:
       allow_author: true
       allow_contributor: true
+  - name: Kevin approves
+    methods:
+      comments:
+        - "/lgtm"
+      github_review: true
+    requires:
+      count: 1
+      users: [ "OGKevin" ]
