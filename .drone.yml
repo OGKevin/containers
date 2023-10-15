@@ -40,7 +40,7 @@
          "commands": [
             "docker buildx create --use --name drone --node drone0",
             "cd ci/bulldozer",
-            "docker buildx build --platform linux/arm64 --push -t ghcr.io/ogkevin/bulldozer:build-${DRONE_BUILD_NUMBER} -t ghcr.io/ogkevin/bulldozer:${DRONE_COMMIT} ."
+            "docker buildx build --platform linux/arm64 --push -t ghcr.io/ogkevin/bulldozer:build-${DRONE_BUILD_NUMBER} -t ghcr.io/ogkevin/bulldozer:${DRONE_COMMIT} -t ghcr.io/ogkevin/bulldozer:v1.17.0-001 ."
          ],
          "depends_on": [
             "docker login"
@@ -62,7 +62,7 @@
          "commands": [
             "docker buildx create --use --name drone --node drone0",
             "cd ci/policy-bot",
-            "docker buildx build --platform linux/arm64 --push -t ghcr.io/ogkevin/policy-bot:build-${DRONE_BUILD_NUMBER} -t ghcr.io/ogkevin/policy-bot:${DRONE_COMMIT} ."
+            "docker buildx build --platform linux/arm64 --push -t ghcr.io/ogkevin/policy-bot:build-${DRONE_BUILD_NUMBER} -t ghcr.io/ogkevin/policy-bot:${DRONE_COMMIT} -t ghcr.io/ogkevin/policy-bot:v1.31.0-001 ."
          ],
          "depends_on": [
             "docker login"
