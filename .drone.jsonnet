@@ -8,10 +8,12 @@ local containers = [
   {
     dir: 'ci/bulldozer',
     image: 'bulldozer',
+    tag: 'v1.17.0-001',
   },
   {
     dir: 'ci/policy-bot',
     image: 'policy-bot',
+    tag: 'v1.31.0-001',
   },
 ];
 
@@ -19,7 +21,7 @@ local buildStep(c) = {
   commands: [
     'docker buildx create --use --name drone --node drone0',
     'cd ' + c.dir,
-    'docker buildx build --platform linux/arm64 --push -t ghcr.io/ogkevin/' + c.image + ':build-${DRONE_BUILD_NUMBER} -t ghcr.io/ogkevin/' + c.image + ':${DRONE_COMMIT} .',
+    'docker buildx build --platform linux/arm64 --push -t ghcr.io/ogkevin/' + c.image + ':build-${DRONE_BUILD_NUMBER} -t ghcr.io/ogkevin/' + c.image + ':${DRONE_COMMIT} -t ghcr.io/ogkevin/' + c.image + ':' + c.tag + ' .',
   ],
   image: 'docker:' + images.docker.version,
   name: 'build ' + c.image,
