@@ -15,10 +15,11 @@ approval_rules:
       allow_author: true
       allow_contributor: true
   - name: Kevin approves
-    methods:
-      comments:
-        - "/lgtm"
-      github_review: true
+    options:
+      methods:
+        comments:
+          - "/lgtm"
+        github_review: true
     requires:
       count: 1
       users: [ "OGKevin" ]
