@@ -4,3 +4,6 @@
 [submodule "apps/release-please/repo"]
 	path = apps/release-please/repo
 	url = git@github.com:googleapis/release-please.git
+[submodule ".drone-templates"]
+	path = .drone-templates
+	url = git@github.com:OGKevin/drone-templates.git
