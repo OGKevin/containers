@@ -15,6 +15,11 @@ local containers = [
     image: 'policy-bot',
     tag: 'v1.31.0-001',
   },
+  {
+    dir: 'ci/jsonnet',
+    image: 'jsonnet',
+    tag: 'latest',
+  },
 ];
 
 local buildStep(c) = {

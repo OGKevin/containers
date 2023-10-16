@@ -79,6 +79,28 @@
                "path": "/var/run/docker.sock"
             }
          ]
+      },
+      {
+         "commands": [
+            "docker buildx create --use --name drone --node drone0",
+            "cd ci/jsonnet",
+            "docker buildx build --platform linux/arm64 --push -t ghcr.io/ogkevin/jsonnet:build-${DRONE_BUILD_NUMBER} -t ghcr.io/ogkevin/jsonnet:${DRONE_COMMIT} -t ghcr.io/ogkevin/jsonnet:latest ."
+         ],
+         "depends_on": [
+            "docker login"
+         ],
+         "image": "docker:dind@sha256:f28ffd78641197871fea8fd679f2bf8a1cdafa4dc3f1ce3e700ad964aac2879a",
+         "name": "build jsonnet",
+         "volumes": [
+            {
+               "name": "docker-login",
+               "path": "/root/.docker"
+            },
+            {
+               "name": "dockersock",
+               "path": "/var/run/docker.sock"
+            }
+         ]
       }
    ],
    "trigger": {
