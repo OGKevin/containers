@@ -1,4 +1,4 @@
-FROM node:lts@sha256:cd7fa8f136023f7500490e410ba70dd3982ccca21805264f2a260a3a97be7376
+FROM node:lts@sha256:a6385a6bb2fdcb7c48fc871e35e32af8daaa82c518900be49b76d10c005864c2
 
 LABEL org.opencontainers.image.source https://github.com/ogkevin/containers
 
