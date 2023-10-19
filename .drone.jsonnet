@@ -20,6 +20,11 @@ local containers = [
     image: 'jsonnet',
     tag: 'latest',
   },
+  {
+    dir: 'apps/keepalived-exporter',
+    image: 'keepalived-exporter',
+    tag: 'v1.3.2',
+  },
 ];
 
 local buildStep(c) = {
@@ -49,6 +54,13 @@ local pipeline = common.platform + common.defaultPushTrigger + {
   kind: 'pipeline',
   name: 'docker-build',
   steps: [
+    {
+      name: 'submodules',
+      image: 'alpine/git',
+      commands: [
+        'git submodule update --init --recursive',
+      ],
+    },
     {
       commands: [
         'echo $GHCR_TOKEN | docker login ghcr.io -u $GHCR_USER --password-stdin',

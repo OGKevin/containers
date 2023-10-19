@@ -7,3 +7,6 @@
 [submodule ".drone-templates"]
 	path = .drone-templates
 	url = git@github.com:OGKevin/drone-templates.git
+[submodule "apps/keepalived-exporter"]
+	path = apps/keepalived-exporter
+	url = https://github.com/mehdy/keepalived-exporter.git
