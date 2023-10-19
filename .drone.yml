@@ -9,6 +9,14 @@
    "steps": [
       {
          "commands": [
+            "apt update && apt install -y git",
+            "git submodule update --init apps/keepalived-exporter"
+         ],
+         "image": "debian:11@sha256:7a89d1fd045f797f2f34dd778bdf19335587357c3603859f2048f4c0285b06a8",
+         "name": "submodules"
+      },
+      {
+         "commands": [
             "echo $GHCR_TOKEN | docker login ghcr.io -u $GHCR_USER --password-stdin",
             "echo $DOCKERHUB_TOKEN | docker login -u $DOCKERHUB_USER --password-stdin",
             "cp /root/.docker/config.json /docker"
@@ -43,7 +51,8 @@
             "docker buildx build --platform linux/arm64 --push -t ghcr.io/ogkevin/bulldozer:build-${DRONE_BUILD_NUMBER} -t ghcr.io/ogkevin/bulldozer:${DRONE_COMMIT} -t ghcr.io/ogkevin/bulldozer:v1.17.0-001 ."
          ],
          "depends_on": [
-            "docker login"
+            "docker login",
+            "submodules"
          ],
          "image": "docker:dind@sha256:f28ffd78641197871fea8fd679f2bf8a1cdafa4dc3f1ce3e700ad964aac2879a",
          "name": "build bulldozer",
@@ -65,7 +74,8 @@
             "docker buildx build --platform linux/arm64 --push -t ghcr.io/ogkevin/policy-bot:build-${DRONE_BUILD_NUMBER} -t ghcr.io/ogkevin/policy-bot:${DRONE_COMMIT} -t ghcr.io/ogkevin/policy-bot:v1.31.0-001 ."
          ],
          "depends_on": [
-            "docker login"
+            "docker login",
+            "submodules"
          ],
          "image": "docker:dind@sha256:f28ffd78641197871fea8fd679f2bf8a1cdafa4dc3f1ce3e700ad964aac2879a",
          "name": "build policy-bot",
@@ -87,10 +97,34 @@
             "docker buildx build --platform linux/arm64 --push -t ghcr.io/ogkevin/jsonnet:build-${DRONE_BUILD_NUMBER} -t ghcr.io/ogkevin/jsonnet:${DRONE_COMMIT} -t ghcr.io/ogkevin/jsonnet:latest ."
          ],
          "depends_on": [
-            "docker login"
+            "docker login",
+            "submodules"
          ],
          "image": "docker:dind@sha256:f28ffd78641197871fea8fd679f2bf8a1cdafa4dc3f1ce3e700ad964aac2879a",
          "name": "build jsonnet",
+         "volumes": [
+            {
+               "name": "docker-login",
+               "path": "/root/.docker"
+            },
+            {
+               "name": "dockersock",
+               "path": "/var/run/docker.sock"
+            }
+         ]
+      },
+      {
+         "commands": [
+            "docker buildx create --use --name drone --node drone0",
+            "cd apps/keepalived-exporter",
+            "docker buildx build --platform linux/arm64 --push -t ghcr.io/ogkevin/keepalived-exporter:build-${DRONE_BUILD_NUMBER} -t ghcr.io/ogkevin/keepalived-exporter:${DRONE_COMMIT} -t ghcr.io/ogkevin/keepalived-exporter:v1.3.2 ."
+         ],
+         "depends_on": [
+            "docker login",
+            "submodules"
+         ],
+         "image": "docker:dind@sha256:f28ffd78641197871fea8fd679f2bf8a1cdafa4dc3f1ce3e700ad964aac2879a",
+         "name": "build keepalived-exporter",
          "volumes": [
             {
                "name": "docker-login",

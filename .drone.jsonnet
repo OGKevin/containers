@@ -1,6 +1,7 @@
 local common = import '.drone-templates/common.libsonnet';
 local images = import '.drone-templates/images.libsonnet';
 local renovate = import '.drone-templates/renovate.libsonnet';
+local images = import '.drone-templates/images.libsonnet';
 
 local secrets = common.secrets;
 
@@ -20,6 +21,11 @@ local containers = [
     image: 'jsonnet',
     tag: 'latest',
   },
+  {
+    dir: 'apps/keepalived-exporter',
+    image: 'keepalived-exporter',
+    tag: 'v1.3.2',
+  },
 ];
 
 local buildStep(c) = {
@@ -32,6 +38,7 @@ local buildStep(c) = {
   name: 'build ' + c.image,
   depends_on: [
     'docker login',
+    'submodules',
   ],
   volumes: [
     {
@@ -49,6 +56,14 @@ local pipeline = common.platform + common.defaultPushTrigger + {
   kind: 'pipeline',
   name: 'docker-build',
   steps: [
+    {
+      name: 'submodules',
+      image: 'debian:' + images.debian.version,
+      commands: [
+        'apt update && apt install -y git',
+        'git submodule update --init apps/keepalived-exporter',
+      ],
+    },
     {
       commands: [
         'echo $GHCR_TOKEN | docker login ghcr.io -u $GHCR_USER --password-stdin',
