@@ -38,6 +38,7 @@ local buildStep(c) = {
   name: 'build ' + c.image,
   depends_on: [
     'docker login',
+    'submodules',
   ],
   volumes: [
     {
