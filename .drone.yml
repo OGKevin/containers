@@ -159,9 +159,6 @@
 }
 ---
 {
-   "clone": {
-      "disable": true
-   },
    "kind": "pipeline",
    "name": "renovate-push",
    "platform": {
@@ -169,6 +166,14 @@
       "os": "linux"
    },
    "steps": [
+      {
+         "commands": [
+            "renovate-config-validator"
+         ],
+         "image": "renovate/renovate:37.13.3@sha256:d103ca33a98264d9367a2d5917b03ef4250a2cdd96a5c450fab983ddcfcfdb47",
+         "name": "validate config",
+         "user": "610:610"
+      },
       {
          "commands": [
             "chown 610 /secret"
@@ -180,7 +185,12 @@
                "name": "secret",
                "path": "/secret"
             }
-         ]
+         ],
+         "when": {
+            "branch": [
+               "main"
+            ]
+         }
       },
       {
          "image": "rssnyder/drone-github-app:latest@sha256:5867cd348c73f1258b6b14f6139fb79d0d47cf36ad657e62166ebaef7e8eb0f7",
@@ -197,19 +207,24 @@
             },
             "TOKEN_FILE": "/secret/gh-token.txt"
          },
-         "user": 610,
+         "user": "610:610",
          "volumes": [
             {
                "name": "secret",
                "path": "/secret"
             }
-         ]
+         ],
+         "when": {
+            "branch": [
+               "main"
+            ]
+         }
       },
       {
          "commands": [
             "export RENOVATE_TOKEN=\"$(cat /secret/gh-token.txt)\"",
             "export GITHUB_COM_TOKEN=\"$(cat /secret/gh-token.txt)\"",
-            "consul lock -child-exit-code \"renovate/${DRONE_REPO}\" docker-entrypoint.sh"
+            "consul kv get renovate/\"${DRONE_REPO}\"/.lock || consul lock -timeout 1m -child-exit-code \"renovate/${DRONE_REPO}\" docker-entrypoint.sh"
          ],
          "environment": {
             "DOCKER_GHCR_IO_PASSWORD": {
@@ -218,7 +233,7 @@
             "DOCKER_GHCR_IO_USERNAME": {
                "from_secret": "ghcr_user"
             },
-            "LOG_LEVEL": "info",
+            "LOG_LEVEL": "debug",
             "RENOVATE_BASE_DIR": "/data",
             "RENOVATE_DETECT_HOST_RULES_FROM_ENV": "true",
             "RENOVATE_FORK_PROCESSING": "enabled",
@@ -233,7 +248,7 @@
          },
          "image": "renovate/renovate:37.13.3@sha256:d103ca33a98264d9367a2d5917b03ef4250a2cdd96a5c450fab983ddcfcfdb47",
          "name": "renovate",
-         "user": 610,
+         "user": "610:610",
          "volumes": [
             {
                "name": "secret",
@@ -247,13 +262,15 @@
                "name": "renovate",
                "path": "/data"
             }
-         ]
+         ],
+         "when": {
+            "branch": [
+               "main"
+            ]
+         }
       }
    ],
    "trigger": {
-      "branch": [
-         "main"
-      ],
       "event": [
          "push",
          "custom"
@@ -281,9 +298,6 @@
 }
 ---
 {
-   "clone": {
-      "disable": true
-   },
    "kind": "pipeline",
    "name": "renovate-cron",
    "platform": {
@@ -291,6 +305,14 @@
       "os": "linux"
    },
    "steps": [
+      {
+         "commands": [
+            "renovate-config-validator"
+         ],
+         "image": "renovate/renovate:37.13.3@sha256:d103ca33a98264d9367a2d5917b03ef4250a2cdd96a5c450fab983ddcfcfdb47",
+         "name": "validate config",
+         "user": "610:610"
+      },
       {
          "commands": [
             "chown 610 /secret"
@@ -302,7 +324,12 @@
                "name": "secret",
                "path": "/secret"
             }
-         ]
+         ],
+         "when": {
+            "branch": [
+               "main"
+            ]
+         }
       },
       {
          "image": "rssnyder/drone-github-app:latest@sha256:5867cd348c73f1258b6b14f6139fb79d0d47cf36ad657e62166ebaef7e8eb0f7",
@@ -319,19 +346,24 @@
             },
             "TOKEN_FILE": "/secret/gh-token.txt"
          },
-         "user": 610,
+         "user": "610:610",
          "volumes": [
             {
                "name": "secret",
                "path": "/secret"
             }
-         ]
+         ],
+         "when": {
+            "branch": [
+               "main"
+            ]
+         }
       },
       {
          "commands": [
             "export RENOVATE_TOKEN=\"$(cat /secret/gh-token.txt)\"",
             "export GITHUB_COM_TOKEN=\"$(cat /secret/gh-token.txt)\"",
-            "consul lock -child-exit-code \"renovate/${DRONE_REPO}\" docker-entrypoint.sh"
+            "consul kv get renovate/\"${DRONE_REPO}\"/.lock || consul lock -timeout 1m -child-exit-code \"renovate/${DRONE_REPO}\" docker-entrypoint.sh"
          ],
          "environment": {
             "DOCKER_GHCR_IO_PASSWORD": {
@@ -340,7 +372,7 @@
             "DOCKER_GHCR_IO_USERNAME": {
                "from_secret": "ghcr_user"
             },
-            "LOG_LEVEL": "info",
+            "LOG_LEVEL": "debug",
             "RENOVATE_BASE_DIR": "/data",
             "RENOVATE_DETECT_HOST_RULES_FROM_ENV": "true",
             "RENOVATE_FORK_PROCESSING": "enabled",
@@ -355,7 +387,7 @@
          },
          "image": "renovate/renovate:37.13.3@sha256:d103ca33a98264d9367a2d5917b03ef4250a2cdd96a5c450fab983ddcfcfdb47",
          "name": "renovate",
-         "user": 610,
+         "user": "610:610",
          "volumes": [
             {
                "name": "secret",
@@ -369,7 +401,12 @@
                "name": "renovate",
                "path": "/data"
             }
-         ]
+         ],
+         "when": {
+            "branch": [
+               "main"
+            ]
+         }
       }
    ],
    "trigger": {
