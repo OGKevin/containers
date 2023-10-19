@@ -1,6 +1,7 @@
 local common = import '.drone-templates/common.libsonnet';
 local images = import '.drone-templates/images.libsonnet';
 local renovate = import '.drone-templates/renovate.libsonnet';
+local images = import '.drone-templates/images.libsonnet';
 
 local secrets = common.secrets;
 
@@ -56,9 +57,10 @@ local pipeline = common.platform + common.defaultPushTrigger + {
   steps: [
     {
       name: 'submodules',
-      image: 'alpine/git',
+      image: 'debian:' + images.debian.version,
       commands: [
-        'git submodule update --init --recursive',
+        'apt update && apt install -y git',
+        'git submodule update --init apps/keepalived-exporter',
       ],
     },
     {
