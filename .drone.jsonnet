@@ -26,6 +26,11 @@ local containers = [
     image: 'keepalived-exporter',
     tag: 'v1.3.2',
   },
+  {
+    dir: 'apps/release-please',
+    image: 'release-please',
+    tag: 'v15.13.0',
+  },
 ];
 
 local buildStep(c) = {
@@ -62,6 +67,7 @@ local pipeline = common.platform + common.defaultPushTrigger + {
       commands: [
         'apt update && apt install -y git',
         'git submodule update --init apps/keepalived-exporter',
+        'git submodule update --init apps/release-please/repo',
       ],
     },
     {
