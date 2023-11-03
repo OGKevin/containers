@@ -1,4 +1,4 @@
-FROM debian:11@sha256:c141beaa9e0767774221cc82efe3a6712a1cc4f75d2699334dfd9a28a6f7357b
+FROM debian:11@sha256:a4aa0519fbd45786048bbc4daa7092fec803d22463f1cb6c4e7762dcb6a10cf0
 
 RUN apt update && apt install -y \
     git \
