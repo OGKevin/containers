@@ -31,6 +31,11 @@ local containers = [
     image: 'release-please',
     tag: 'v15.13.0',
   },
+  {
+    dir: 'ci/sops',
+    image: 'sops',
+    tag: 'v3.7.1',
+  },
 ];
 
 local buildStep(c) = {

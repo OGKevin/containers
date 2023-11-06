@@ -159,6 +159,29 @@
                "path": "/var/run/docker.sock"
             }
          ]
+      },
+      {
+         "commands": [
+            "docker buildx create --use --name drone --node drone0",
+            "cd ci/sops",
+            "docker buildx build --platform linux/arm64 --push -t ghcr.io/ogkevin/sops:build-${DRONE_BUILD_NUMBER} -t ghcr.io/ogkevin/sops:${DRONE_COMMIT} -t ghcr.io/ogkevin/sops:v3.7.1 ."
+         ],
+         "depends_on": [
+            "docker login",
+            "submodules"
+         ],
+         "image": "docker:dind@sha256:f28ffd78641197871fea8fd679f2bf8a1cdafa4dc3f1ce3e700ad964aac2879a",
+         "name": "build sops",
+         "volumes": [
+            {
+               "name": "docker-login",
+               "path": "/root/.docker"
+            },
+            {
+               "name": "dockersock",
+               "path": "/var/run/docker.sock"
+            }
+         ]
       }
    ],
    "trigger": {
@@ -203,16 +226,25 @@
             "chown 610 /secret"
          ],
          "image": "debian:11@sha256:7a89d1fd045f797f2f34dd778bdf19335587357c3603859f2048f4c0285b06a8",
-         "name": "fix secrets ownership",
+         "name": "fix file ownership",
          "volumes": [
             {
                "name": "secret",
                "path": "/secret"
+            },
+            {
+               "name": "consul",
+               "path": "/usr/local/bin/consul"
+            },
+            {
+               "name": "renovate",
+               "path": "/data"
             }
          ],
          "when": {
             "branch": [
-               "main"
+               "main",
+               "master"
             ]
          }
       },
@@ -236,11 +268,20 @@
             {
                "name": "secret",
                "path": "/secret"
+            },
+            {
+               "name": "consul",
+               "path": "/usr/local/bin/consul"
+            },
+            {
+               "name": "renovate",
+               "path": "/data"
             }
          ],
          "when": {
             "branch": [
-               "main"
+               "main",
+               "master"
             ]
          }
       },
@@ -272,7 +313,7 @@
          },
          "image": "renovate/renovate:37.13.3@sha256:d103ca33a98264d9367a2d5917b03ef4250a2cdd96a5c450fab983ddcfcfdb47",
          "name": "renovate",
-         "user": "610:610",
+         "user": "610:0",
          "volumes": [
             {
                "name": "secret",
@@ -289,7 +330,8 @@
          ],
          "when": {
             "branch": [
-               "main"
+               "main",
+               "master"
             ]
          }
       }
@@ -342,16 +384,25 @@
             "chown 610 /secret"
          ],
          "image": "debian:11@sha256:7a89d1fd045f797f2f34dd778bdf19335587357c3603859f2048f4c0285b06a8",
-         "name": "fix secrets ownership",
+         "name": "fix file ownership",
          "volumes": [
             {
                "name": "secret",
                "path": "/secret"
+            },
+            {
+               "name": "consul",
+               "path": "/usr/local/bin/consul"
+            },
+            {
+               "name": "renovate",
+               "path": "/data"
             }
          ],
          "when": {
             "branch": [
-               "main"
+               "main",
+               "master"
             ]
          }
       },
@@ -375,11 +426,20 @@
             {
                "name": "secret",
                "path": "/secret"
+            },
+            {
+               "name": "consul",
+               "path": "/usr/local/bin/consul"
+            },
+            {
+               "name": "renovate",
+               "path": "/data"
             }
          ],
          "when": {
             "branch": [
-               "main"
+               "main",
+               "master"
             ]
          }
       },
@@ -411,7 +471,7 @@
          },
          "image": "renovate/renovate:37.13.3@sha256:d103ca33a98264d9367a2d5917b03ef4250a2cdd96a5c450fab983ddcfcfdb47",
          "name": "renovate",
-         "user": "610:610",
+         "user": "610:0",
          "volumes": [
             {
                "name": "secret",
@@ -428,14 +488,16 @@
          ],
          "when": {
             "branch": [
-               "main"
+               "main",
+               "master"
             ]
          }
       }
    ],
    "trigger": {
       "branch": [
-         "main"
+         "main",
+         "master"
       ],
       "cron": [
          "renovate"
