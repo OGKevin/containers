@@ -13,7 +13,7 @@ WORKDIR /sops
 
 RUN CGO_ENABLED=0 go build -o /out/sops go.mozilla.org/sops/v3/cmd/sops
 
-FROM gcr.io/distroless/static-debian11:debug-nonroot@sha256:cdb2034c38b2f2bd0a99f08191a44831a04220c81aab97b2397d2ecf1082db5f
+FROM gcr.io/distroless/static-debian11:debug-nonroot@sha256:c7c26a49568781eb04040f48c305b676f290dbaa9112b2f9de02c8df57a881b6
 
 COPY --from=builder /out/sops /bin/sops
 
