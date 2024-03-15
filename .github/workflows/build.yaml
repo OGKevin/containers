@@ -1,0 +1,93 @@
+#
+name: Create and publish images
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  schedule:
+    - cron: "0 0 */1 * *"
+  workflow_dispatch:
+env:
+  REGISTRY: ghcr.io
+jobs:
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: set-matrix
+        run: |
+          find apps -type d -maxdepth 1 | jq -R -s -c 'split("\n")[1:]' > apps.matrix.json
+          find ci -type d -maxdepth 1 | jq -R -s -c 'split("\n")[1:]' > ci.matrix.json
+          echo "matrix=$(jq -c -s '.| add| del(..|select(. == ""))' ./*.matrix.json)" >> "$GITHUB_OUTPUT"
+  build-and-push-image:
+    runs-on: arc-runner
+    needs: generate-matrix
+    strategy:
+      matrix:
+        image: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
+    steps:
+      - name: Install packages
+        run: sudo apt-get update && sudo apt-get install -y jq git
+      - name: Setup Secrets
+        run: |
+          github_app_id="$(cat /secrets/github-app-id)"
+          echo "::add-mask::$github_app_id"
+          echo "GITHUB_APP_ID=$github_app_id" >> "$GITHUB_ENV"
+          private_key="$(cat /secrets/github-private-key | base64 -d)"
+          while read -r line;
+          do
+            echo "::add-mask::${line}";
+          done <<< "$private_key"
+          {
+            echo "GITHUB_PRIVATE_KEY<<EOF"
+            echo "$private_key"
+            echo EOF
+          } >> "$GITHUB_ENV"
+          password="$(cat /secrets/github-ghcr-token)"
+          echo "::add-mask::$password"
+          echo DOCKER_GHCR_IO_PASSWORD="$password" >> "$GITHUB_ENV"
+          username="$(cat /secrets/github-ghcr-user)"
+          echo "::add-mask::$username"
+          echo DOCKER_GHCR_IO_USERNAME="$username" >> "$GITHUB_ENV"
+      - name: Get token
+        id: get_token
+        uses: actions/create-github-app-token@v1
+        with:
+          private-key: ${{ env.GITHUB_PRIVATE_KEY }}
+          app-id: ${{ env.GITHUB_APP_ID }}
+          owner: ${{ github.repository_owner }}
+          repositories: "drone-templates,containers"
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: "${{ steps.get_token.outputs.token }}"
+          persist-credentials: false
+      # - name: Set up QEMU
+      # uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3.0.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          password: ${{ env.DOCKER_GHCR_IO_PASSWORD}}
+          username: ${{ env.DOCKER_GHCR_IO_USERNAME }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5.5.1
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.image }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5.2.0
+        with:
+          context: ${{ matrix.image }}
+          push: true
+          platforms: linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.DOCKER_GHCR_IO_USERNAME }}/${{ matrix.image }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.DOCKER_GHCR_IO_USERNAME }}/${{ matrix.image }}:buildcache,mode=max
